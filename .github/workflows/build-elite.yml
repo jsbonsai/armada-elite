@@ -34,15 +34,16 @@ jobs:
           cp elite-kernel/armada-kernel-7.0.11.tar.zst \
              elite-kernel/armada-kernel-7.0.11.tar.zst.sha256 /tmp/kctx/ctx/kernel/
           printf 'FROM scratch\nCOPY ctx/ /\n' > /tmp/kctx/Containerfile
-          podman build --platform linux/arm64 -f /tmp/kctx/Containerfile \
+          sudo podman build --platform linux/arm64 -f /tmp/kctx/Containerfile \
             -t localhost/armada-packages/kernel:latest /tmp/kctx
 
       - name: Build bootc image (native arm64, Elite kernel override)
         run: |
           set -euxo pipefail
+          JUST_BIN=$(command -v just)
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           sudo git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          ARMADA_LOCAL_PKGS=kernel just build localhost/armada latest
+          sudo env ARMADA_LOCAL_PKGS=kernel "$JUST_BIN" build localhost/armada latest
 
       - name: Build disk image (bootc-image-builder + /KERNEL staging + finalize)
         run: |
