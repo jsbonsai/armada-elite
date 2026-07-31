@@ -1,0 +1,61 @@
+---
+name: Build Elite disk image
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    name: Build KONKR Pocket FIT Elite disk image
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+    steps:
+      - name: Maximize build space
+        uses: ublue-os/remove-unwanted-software@cc0becac701cf642c8f0a6613bbdaf5dc36b259e # v9
+        with:
+          remove-codeql: true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            containernetworking-plugins curl jq pigz python3
+
+      - name: Install just
+        uses: ublue-os/just-action@30ab4659369934b65b655bf8d2fa4ddd6547d384 # v3
+
+      - name: Build local Elite kernel package image (from the prebuilt tarball)
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/kctx && mkdir -p /tmp/kctx/ctx/kernel
+          cp elite-kernel/armada-kernel-7.0.11.tar.zst \
+             elite-kernel/armada-kernel-7.0.11.tar.zst.sha256 /tmp/kctx/ctx/kernel/
+          printf 'FROM scratch\nCOPY ctx/ /\n' > /tmp/kctx/Containerfile
+          podman build --platform linux/arm64 -f /tmp/kctx/Containerfile \
+            -t localhost/armada-packages/kernel:latest /tmp/kctx
+
+      - name: Build bootc image (native arm64, Elite kernel override)
+        run: |
+          set -euxo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          sudo git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          ARMADA_LOCAL_PKGS=kernel just build localhost/armada latest
+
+      - name: Build disk image (bootc-image-builder + /KERNEL staging + finalize)
+        run: |
+          set -euxo pipefail
+          sudo just build-armada-image localhost/armada latest
+          sudo chown -R "$(id -u):$(id -g)" output
+          ls -lh output/
+
+      - name: Upload disk image
+        uses: actions/upload-artifact@v4
+        with:
+          name: armada-elite-disk-image
+          path: output/armada-*.img.gz
+          if-no-files-found: error
+          retention-days: 5
+          compression-level: 0

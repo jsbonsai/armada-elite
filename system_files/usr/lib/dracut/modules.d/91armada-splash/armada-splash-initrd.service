@@ -1,0 +1,17 @@
+[Unit]
+Description=Armada splash (initramfs)
+DefaultDependencies=no
+ConditionPathExists=/usr/libexec/armada/armada-splash
+# Ordered into the running boot chain: a bare WantedBy=initrd.target start
+# job is cancelled by switch-root before it ever runs.
+After=dracut-pre-mount.service
+Before=initrd-switch-root.target
+
+[Service]
+Type=simple
+ExecStartPre=/bin/sh -c 'mkdir -p /run/armada/splash; printf "Starting Armada...\n" > /run/armada/splash/status'
+ExecStart=/usr/libexec/armada/armada-splash-fb
+SuccessExitStatus=TERM KILL INT
+
+[Install]
+WantedBy=initrd.target

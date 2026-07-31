@@ -1,0 +1,9 @@
+// Steam re-enables the reboot wall via SetWallMessage, painting over the
+// shutdown splash. Only effective because the build strips logind's "reboot
+// implies set-wall-message" annotation, which overrides any rule verdict.
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.login1.set-wall-message") {
+        polkit.log("armada: denying set-wall-message for " + subject.user);
+        return polkit.Result.NO;
+    }
+});

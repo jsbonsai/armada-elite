@@ -1,0 +1,49 @@
+#!/usr/bin/bash
+# zz- sorts after armada.conf so its Session= wins (User=/Relogin= stay there).
+set -euo pipefail
+
+case "${1:-}" in
+    switch-desktop)  session=armada-plasma.desktop ;;
+    switch-gamemode) session=gamescope-session-steam.desktop ;;
+    default-gamemode) session=gamescope-session-steam.desktop; default_only=1 ;;
+    *) echo "usage: $0 {switch-desktop|switch-gamemode|default-gamemode}" >&2; exit 1 ;;
+esac
+
+logout_plasma() {
+    local user=armada
+    local uid=1000
+    local bus="/run/user/${uid}/bus"
+    local qdbus=
+
+    [[ -S "${bus}" ]] || return 1
+
+    for candidate in qdbus-qt6 qdbus6 qdbus /usr/lib64/qt6/bin/qdbus; do
+        if command -v "${candidate}" >/dev/null 2>&1; then
+            qdbus=$(command -v "${candidate}")
+            break
+        elif [[ -x "${candidate}" ]]; then
+            qdbus="${candidate}"
+            break
+        fi
+    done
+
+    [[ -n "${qdbus}" ]] || return 1
+
+    sudo -Eu "${user}" env \
+        XDG_RUNTIME_DIR="/run/user/${uid}" \
+        DBUS_SESSION_BUS_ADDRESS="unix:path=${bus}" \
+        "${qdbus}" org.kde.Shutdown /Shutdown org.kde.Shutdown.logout
+}
+
+printf '[Autologin]\nSession=%s\n' "${session}" > /etc/sddm.conf.d/zz-steamos-autologin.conf
+systemctl reset-failed sddm.service 2>/dev/null || true
+
+if [[ "${default_only:-0}" == "1" ]]; then
+    exit 0
+fi
+
+if [[ ${1:-} == "switch-gamemode" ]] && logout_plasma; then
+    exit 0
+fi
+
+systemctl --no-block restart sddm.service

@@ -1,0 +1,12 @@
+Justfile.local
+output/
+_build*
+cosign.key
+__pycache__/
+*.pyc
+
+# elite build scratch
+bootc-build.log
+disk-build.log
+image-build.log
+kernel-build.log

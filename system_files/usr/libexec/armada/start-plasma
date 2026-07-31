@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+set -euo pipefail
+
+export DESKTOP_SESSION=plasma
+export XDG_CURRENT_DESKTOP=KDE
+export XDG_SESSION_DESKTOP=KDE
+export XDG_SESSION_TYPE=wayland
+
+exec /usr/bin/startplasma-wayland

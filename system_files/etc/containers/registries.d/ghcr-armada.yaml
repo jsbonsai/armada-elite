@@ -1,0 +1,5 @@
+docker:
+  ghcr.io/virtudude/armada:
+    use-sigstore-attachments: true
+  ghcr.io/armada-os/armada:
+    use-sigstore-attachments: true
