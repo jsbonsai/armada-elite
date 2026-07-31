@@ -10,3 +10,5 @@ bootc-build.log
 disk-build.log
 image-build.log
 kernel-build.log
+ci-watch*.log
+current-run-id
