@@ -47,7 +47,8 @@ jobs:
       - name: Build disk image (bootc-image-builder + /KERNEL staging + finalize)
         run: |
           set -euxo pipefail
-          sudo just build-armada-image localhost/armada latest
+          JUST_BIN=$(command -v just)
+          sudo "$JUST_BIN" build-armada-image localhost/armada latest
           sudo chown -R "$(id -u):$(id -g)" output
           ls -lh output/
 
