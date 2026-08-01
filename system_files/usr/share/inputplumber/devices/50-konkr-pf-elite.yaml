@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ShadowBlip/InputPlumber/main/rootfs/usr/share/inputplumber/schema/composite_device_v1.json
+version: 1
+kind: CompositeDevice
+name: KONKR Pocket FIT Elite
+
+# Compose the Elite's two input sources into one virtual controller:
+#   - AYANEO MCU SPI gamepad (kernel mcu_joystick driver, patch 0058)
+#   - KONKR/Home/menu/grip "system" buttons (konkr_sysbtn serdev driver, patch 0069;
+#     emitted as BTN_TRIGGER_HAPPY1..5)
+# Mirrors ROCKNIX's 50-konkr_pf_elite.yaml, but targets deck-uhid (as Armada's
+# AYN Odin 3 does on this same SM8750 platform) so the extra buttons show up as
+# native Steam Deck controls (QuickAccess/QAM, Guide, back paddles) in SteamOS.
+matches:
+  - udev:
+      sys_path: /sys/firmware/devicetree/base
+      attributes:
+        - name: model
+          value: KONKR Pocket FIT Elite
+
+single_source: false
+
+source_devices:
+  - group: gamepad
+    evdev:
+      name: AYANEO MCU Gamepad
+      handler: event*
+    capability_map_id: konkr_gamepad
+  - group: gamepad
+    evdev:
+      name: KONKR System Buttons
+      handler: event*
+    capability_map_id: konkr_sysbtn
+
+options:
+  auto_manage: true
+
+target_devices:
+  - deck-uhid
+  - keyboard
