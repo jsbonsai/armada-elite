@@ -101,12 +101,38 @@ After the intro animation the screen can be **black for up to ~60 seconds** befo
 Steam's first-run setup appears (language, timezone, Wi-Fi). Steam then restarts
 once more — another short black screen — and you're in.
 
-Armada can later install itself to internal storage alongside Android, but on the
-Elite I'd keep it on the SD card for now.
-
 > [!NOTE]
 > The image ships with user `armada` / password `armada`, SSH off by default.
 > Change the password before enabling SSH on an untrusted network.
+
+## Daily use: sleep & storage
+
+### Sleep drains the battery — consider powering off instead
+
+Like mainline Armada, this build uses **"fake sleep"** rather than true suspend:
+pressing the power button freezes the session and blanks the screen, but the SoC
+stays powered, so **idle battery drain during sleep is noticeable**. Real
+suspend-to-idle (`s2idle`) isn't implemented yet. Until it is, if you're setting
+the device down for a while, **power it off** rather than sleeping — the ROCKNIX
+ABL autoboots straight into Linux, so cold-booting back into Armada is painless.
+
+### Keep the OS on the SD card; put games on an internal partition
+
+You *can* install Armada to internal storage (Desktop Mode → **Armada Installer**),
+and it's technically supported — but I'd hold off. The setup I actually run, and
+recommend:
+
+- **Run the OS from the microSD card**, and
+- **Carve out a partition on internal storage for your Steam library** — games
+  install to fast internal UFS while the OS stays on the card.
+
+The point is to keep your games **decoupled from the OS**. When mainline Armada
+adds KPF Elite support, you just switch to the mainline image on the card and
+**keep your entire Steam library** — no re-download, no wiping internal.
+Installing the OS itself to internal ties it all together and means redoing
+everything on the next switch. (Carving the partition is a manual, somewhat
+advanced step — you repartition internal yourself and point Steam at the mounted
+drive.)
 
 ## Build it yourself
 
