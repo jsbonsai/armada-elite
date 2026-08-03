@@ -26,10 +26,31 @@ performance issues:
 - Steam Deck controller profile via InputPlumber: **KONKR button → Guide**,
   **front-top-right → Steam Quick Access (QAM)**, extra shoulders → back paddles
 
+## How it works (why the Elite is selectable)
+
+Armada boots through the **ROCKNIX ABL** — the Android bootloader that ROCKNIX
+uses in place of the stock one. Two independent pieces have to line up, and this
+fork only supplies the second:
+
+- **The selector (ROCKNIX's side).** ROCKNIX added the Pocket FIT Elite to its
+  SM8750 device support, so the ROCKNIX ABL you flash already lists
+  **KONKR Pocket FIT Elite** in its on-device model menu, and knows the board-id
+  to match it.
+- **What it points at (this fork's side).** The Elite's **device tree (DTB)** and
+  kernel drivers are baked into the image's boot partition. When you pick
+  "KONKR Pocket FIT Elite" in the ABL menu, the ABL hands that matching Elite DTB
+  to Armada's kernel, and it comes up with the correct panel, touch, audio, and
+  so on.
+
+So: ROCKNIX provides the selector, the image provides the thing it selects. The
+same ABL is used by ROCKNIX and Armada — it's distro-agnostic, which is why you
+can even swap SD cards between the two.
+
 ## Get the image
 
 Grab the latest split image from **[Releases](../../releases/latest)**. GitHub
-caps release files at 2 GB, so the ~7.5 GB image is split into parts. Reassemble:
+caps release files at 2 GB, so the ~7.5 GB image is split into parts. Reassemble
+into a single `.img.gz`:
 
 ```bash
 cat armada-elite-*.img.gz.part-* > armada-elite.img.gz
@@ -40,19 +61,48 @@ sha256sum armada-elite.img.gz
 ## Flash & boot
 
 > [!WARNING]
-> Booting Armada requires flashing the **ROCKNIX ABL**, which can brick your
-> device or corrupt your Android partition. Do this at your own risk.
+> Booting Armada requires replacing the device's **ABL** bootloader. Flashing the
+> wrong SoC's ABL, or a bad flash, can **brick the device or corrupt your Android
+> partition**. Do this at your own risk, and keep the ABL backup the script makes.
 
-1. **Flash the ROCKNIX ABL** for the SM8750 (from within Android, using ROCKNIX's
-   `backup_abl.sh` / `flash_abl.sh`). This ABL is distro-agnostic — the same one
-   boots ROCKNIX and Armada. It only has to be done once.
-2. **Flash the image to an SD card** (64 GB+, A2) with Balena Etcher — it accepts
-   the reassembled `armada-elite.img.gz` directly.
-3. **Boot from the card.** The ABL selects the Elite DTB by board-id. Expect a
-   ~60 s black screen on first boot before Steam's first-run setup.
+The Elite is **SM8750** — you'll use the `SM8750` ABL. The ABL flashing tools ship
+*inside this image*, so you don't download them separately.
+
+### 1. Flash the ROCKNIX ABL (once, from Android)
+
+1. Flash the image to an SD card (next section) or just mount the card — you only
+   need the `rocknix_abl` folder off it for this step.
+2. Boot the Elite into its stock **Android**, and copy the **`rocknix_abl`** folder
+   from the SD card to the root of internal storage.
+3. Open the folder for your SoC: **`rocknix_abl/SM8750`**.
+4. Using the device's built-in **"run script as root"** tool, run **`backup_abl.sh`**.
+   It writes `abl_a.img` and `abl_b.img` into that folder — **copy those to a PC
+   and keep them.** That's your one-command path back to stock.
+5. Run **`flash_abl.sh`** the same way to install the ROCKNIX ABL.
+
+### 2. Flash the image to a microSD
+
+Reassemble the parts (above) and write `armada-elite.img.gz` to a **64 GB+ (A2)**
+card with **Balena Etcher** — it accepts the `.gz` directly, no need to unzip it.
+
+### 3. Boot into the ABL menu and select the Elite
+
+1. With the card inserted, power on **holding VOL-** to enter the ROCKNIX ABL menu.
+2. Navigate with **VOL- / VOL+**, select with **POWER**:
+   - **Set device model → KONKR Pocket FIT Elite**
+   - **Toggle boot mode → Linux**
+   - **Start**
+3. These persist, so it's a one-time setup — after this the device boots straight
+   into Armada from the card.
+
+### 4. First boot
+
+After the intro animation the screen can be **black for up to ~60 seconds** before
+Steam's first-run setup appears (language, timezone, Wi-Fi). Steam then restarts
+once more — another short black screen — and you're in.
 
 Armada can later install itself to internal storage alongside Android, but on the
-Elite I'd keep it on SD for now.
+Elite I'd keep it on the SD card for now.
 
 > [!NOTE]
 > The image ships with user `armada` / password `armada`, SSH off by default.
