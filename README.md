@@ -65,35 +65,35 @@ sha256sum armada-elite.img.gz
 > wrong SoC's ABL, or a bad flash, can **brick the device or corrupt your Android
 > partition**. Do this at your own risk, and keep the ABL backup the script makes.
 
-The Elite is **SM8750** — you'll use the `SM8750` ABL. The ABL flashing tools ship
-*inside this image*, so you don't download them separately.
+The Elite is an **SM8750** device — you'll use the `SM8750` ABL. The ABL flashing
+tools ship *inside this image*, so there's nothing extra to download.
 
-### 1. Flash the ROCKNIX ABL (once, from Android)
-
-1. Flash the image to an SD card (next section) or just mount the card — you only
-   need the `rocknix_abl` folder off it for this step.
-2. Boot the Elite into its stock **Android**, and copy the **`rocknix_abl`** folder
-   from the SD card to the root of internal storage.
-3. Open the folder for your SoC: **`rocknix_abl/SM8750`**.
-4. Using the device's built-in **"run script as root"** tool, run **`backup_abl.sh`**.
-   It writes `abl_a.img` and `abl_b.img` into that folder — **copy those to a PC
-   and keep them.** That's your one-command path back to stock.
-5. Run **`flash_abl.sh`** the same way to install the ROCKNIX ABL.
-
-### 2. Flash the image to a microSD
+### 1. Flash the image to a microSD
 
 Reassemble the parts (above) and write `armada-elite.img.gz` to a **64 GB+ (A2)**
-card with **Balena Etcher** — it accepts the `.gz` directly, no need to unzip it.
+card with **Balena Etcher** — it takes the `.gz` directly, no need to unzip it.
+
+### 2. Flash the ROCKNIX ABL (once, from Android)
+
+1. Put the flashed card in the Elite and boot its stock **Android**. The card's
+   data volume shows up labeled **`ARMADA`**.
+2. Copy the **`rocknix_abl`** folder from that volume to the root of internal
+   storage, then open **`rocknix_abl/SM8750`** (the Elite is listed there as
+   *KONKR Pocket FIT (8 Elite)*).
+3. Using the device's built-in **"run script as root"** tool, run **`backup_abl.sh`**.
+   It writes `abl_a.img` and `abl_b.img` into that folder — **copy those to a PC
+   and keep them.** That's your one-command path back to stock.
+4. Run **`flash_abl.sh`** the same way to install the ROCKNIX ABL.
 
 ### 3. Boot into the ABL menu and select the Elite
 
-1. With the card inserted, power on **holding VOL-** to enter the ROCKNIX ABL menu.
+1. Reboot **holding VOL-** to enter the ROCKNIX ABL menu.
 2. Navigate with **VOL- / VOL+**, select with **POWER**:
-   - **Set device model → KONKR Pocket FIT Elite**
+   - **Set device model → KONKR Pocket FIT (8 Elite)**
    - **Toggle boot mode → Linux**
    - **Start**
-3. These persist, so it's a one-time setup — after this the device boots straight
-   into Armada from the card.
+3. This is a one-time setup — the choices persist, and the device then boots
+   straight into Armada from the card.
 
 ### 4. First boot
 
