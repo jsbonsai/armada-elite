@@ -46,17 +46,24 @@ So: ROCKNIX provides the selector, the image provides the thing it selects. The
 same ABL is used by ROCKNIX and Armada — it's distro-agnostic, which is why you
 can even swap SD cards between the two.
 
-## Get the image
+## Download
 
-Grab the latest split image from **[Releases](../../releases/latest)**. GitHub
-caps release files at 2 GB, so the ~7.5 GB image is split into parts. Reassemble
-into a single `.img.gz`:
+The image (~7.9 GB) is hosted on **Google Drive** — it's larger than GitHub's 2 GB
+release-file limit:
+
+**[Download armada-elite-20260801.img.gz (Google Drive)](https://drive.google.com/drive/folders/1nX-a18R8ybhpo-YB--X8hQcGCQlXjJ2U)**
+
+The folder holds the image and its `.sha256`. After downloading, verify it's the real
+thing:
 
 ```bash
-cat armada-elite-*.img.gz.part-* > armada-elite.img.gz
-# optional: verify against the SHA256 in the release notes
-sha256sum armada-elite.img.gz
+shasum -a 256 armada-elite-20260801.img.gz
+# must equal:
+# f401a672da19841dee65e4f10237e292f14c76fb0fd7b693e231b0ce92f388f1
 ```
+
+If the hash matches, it's the correct image. The [latest release](../../releases/latest)
+always shows the current version and checksum.
 
 ## Flash & boot
 
@@ -70,17 +77,14 @@ tools ship *inside this image*, so there's nothing extra to download.
 
 ### 1. Flash the image to a microSD
 
-Reassemble the parts (above) and write `armada-elite.img.gz` to a **64 GB+ (A2)**
-card with **Balena Etcher** — it takes the `.gz` directly, no need to unzip it.
+Write the **verified** `armada-elite-20260801.img.gz` to a **64 GB+ (A2)** card with
+**Balena Etcher**, **Raspberry Pi Imager**, or `dd`. Etcher takes the `.gz` directly.
 
 > [!NOTE]
-> **Etcher may warn "Missing partition table / not a bootable image." This is a
-> false positive** — the image has a valid MBR (it just uses `0xda` partition
-> types Etcher doesn't recognize) and boots fine. Click **Continue**. If your
-> Etcher refuses to proceed, use **Raspberry Pi Imager** ("Use custom" → the
-> `.gz`), **Rufus** (Windows, DD mode), or `dd` — e.g.
-> `gunzip -c armada-elite.img.gz | sudo dd of=/dev/sdX bs=4M status=progress` —
-> which write the raw bytes without the check.
+> Only flash a file whose sha256 matches the one above. If a flasher complains the
+> image "isn't bootable" or has "no partition table," your **download is corrupt or
+> truncated** — re-download and re-check the sha256. A verified image flashes and
+> boots cleanly.
 
 ### 2. Flash the ROCKNIX ABL (once, from Android)
 
