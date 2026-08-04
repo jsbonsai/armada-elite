@@ -73,6 +73,15 @@ tools ship *inside this image*, so there's nothing extra to download.
 Reassemble the parts (above) and write `armada-elite.img.gz` to a **64 GB+ (A2)**
 card with **Balena Etcher** — it takes the `.gz` directly, no need to unzip it.
 
+> [!NOTE]
+> **Etcher may warn "Missing partition table / not a bootable image." This is a
+> false positive** — the image has a valid MBR (it just uses `0xda` partition
+> types Etcher doesn't recognize) and boots fine. Click **Continue**. If your
+> Etcher refuses to proceed, use **Raspberry Pi Imager** ("Use custom" → the
+> `.gz`), **Rufus** (Windows, DD mode), or `dd` — e.g.
+> `gunzip -c armada-elite.img.gz | sudo dd of=/dev/sdX bs=4M status=progress` —
+> which write the raw bytes without the check.
+
 ### 2. Flash the ROCKNIX ABL (once, from Android)
 
 1. Put the flashed card in the Elite and boot its stock **Android**. The card's
