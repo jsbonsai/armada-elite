@@ -9,8 +9,8 @@ device support from [ROCKNIX](https://github.com/ROCKNIX/distribution).
 > **This is a working proof-of-concept, not a product.** I built it to run
 > ArmadaOS on my Elite, tested it, and everything I could find works (see below).
 > But it's a personal fork maintained by one person — if you're not comfortable
-> flashing an ABL and reassembling a split image, **wait for official Elite
-> support in mainline Armada**, which shouldn't be far off. I'll retire this fork
+> flashing an ABL, **wait for official Elite support in mainline Armada**, which
+> shouldn't be far off. I'll retire this fork
 > and switch to mainline once that lands.
 
 ## What works
