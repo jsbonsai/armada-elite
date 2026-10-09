@@ -54,7 +54,7 @@ jobs:
           ls -lh output/
 
       - name: Upload disk image
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: armada-elite-disk-image
           path: output/armada-*.img.gz
